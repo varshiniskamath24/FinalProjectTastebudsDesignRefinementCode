@@ -21,20 +21,20 @@ export default function Navbar() {
       background: "#222", color: "white", padding: "10px 20px"
     }}>
       <div>
-        <Link to="/recommend" style={{ marginRight: 20, color: "white" }}>🍽 Explore</Link>
-        <Link to="/donate" style={{ marginRight: 20, color: "white" }}>🎁 Donate</Link>
-        <Link to="/my-donations" style={{ marginRight: 20, color: "white" }}>📦 My Donations</Link>
+        <Link to="/recommend" style={{ marginRight: 20, color: "white" }}>Explore</Link>
+        <Link to="/donate" style={{ marginRight: 20, color: "white" }}>Donate</Link>
+        <Link to="/my-donations" style={{ marginRight: 20, color: "white" }}>My Donations</Link>
         {user?.role === "ngo" && (
           <Link to="/ngo-dashboard" style={{ marginRight: 20, color: "lightgreen" }}>
-            🏢 NGO Dashboard
+            NGO Dashboard
           </Link>
         )}
 
-        <Link to="/orders" style={{ color: "white" }}>📦 My Orders</Link>
+        <Link to="/orders" style={{ color: "white" }}>My Orders</Link>
       </div>
 
       <button onClick={logout} style={{ color: "white", background: "transparent" }}>
-        📜 Logout
+        Logout
       </button>
     </div>
   );
