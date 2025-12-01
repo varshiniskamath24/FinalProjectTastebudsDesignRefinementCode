@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
   userId: { type: String, required: true },
-  restaurantId: { type: String, required: true },  // IMPORTANT
+  restaurantId: { type: String, required: true }, 
   restaurantName: String,
   items: Array,
   total: Number,

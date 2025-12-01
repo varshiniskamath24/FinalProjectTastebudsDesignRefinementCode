@@ -3,8 +3,6 @@ const router = express.Router();
 const requireAuth = require("../middleware/auth");
 const Order = require("../models/Order");
 const Restaurant = require("../models/Restaurant");
-
-// ⭐ CREATE NEW ORDER (Used in Checkout)
 router.post("/", requireAuth, async (req, res) => {
   try {
     const { restaurantId, items, total } = req.body;
@@ -27,31 +25,24 @@ router.post("/", requireAuth, async (req, res) => {
     });
 
     await newOrder.save();
-
-    // Preparing after 30s
 setTimeout(async () => {
   await Order.findByIdAndUpdate(newOrder._id, { status: "Preparing" });
-}, 30000);  // 30 sec
+}, 30000);  
 
-// Out for Delivery after 60s
 setTimeout(async () => {
   await Order.findByIdAndUpdate(newOrder._id, { status: "Out for Delivery" });
-}, 60000);  // 60 sec (1 min)
-
-// Delivered after 90s
+}, 60000);  
 setTimeout(async () => {
   await Order.findByIdAndUpdate(newOrder._id, { status: "Delivered" });
-}, 90000);  // 90 sec (1.5 min)
+}, 90000); 
 
     return res.json({ msg: "Order placed successfully", order: newOrder });
 
   } catch (err) {
-    console.log("Order Creation Error ❌", err);
+    console.log("Order Creation Error", err);
     return res.status(500).json({ msg: "Server error creating order" });
   }
 });
-
-// ⭐ GET logged-in user's orders
 router.get("/myorders", requireAuth, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });

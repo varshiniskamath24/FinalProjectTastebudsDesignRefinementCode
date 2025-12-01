@@ -9,8 +9,6 @@ const DonationSchema = new mongoose.Schema({
   status: { type: String, default: "Pending" },
 
   assignedNGO: { type: mongoose.Schema.Types.ObjectId, ref: "NGO" },
-
-  // 👇 New field: donor confirmation
   pickupConfirmed: { type: Boolean, default: false }
 });
 

@@ -1,11 +1,9 @@
-// src/pages/Checkout.js
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import API from "../api/api";
 
 const FALLBACK_IMG = "https://placehold.co/80x60?text=No+Image";
 
-// Clean extractor helpers (MATCH RestaurantDetails.js)
 const getName = (it) =>
   it.name || it.item || it.itemName || it._resolvedName || "Item";
 
@@ -74,7 +72,7 @@ export default function Checkout() {
               borderBottom: "1px solid #ddd"
             }}
           >
-            {/* IMAGE FIXED SIZE — SO NO FLICKER */}
+
             <div
               style={{
                 width: 80,

@@ -4,17 +4,13 @@ const NGO = require("../models/NGO");
 const auth = require("../middleware/auth");
 
 const router = express.Router();
-
-/* ------------------- HELPER --------------------- */
 function getFoodAgeHours(preparedAt) {
   if (!preparedAt) return 0;
   return (Date.now() - new Date(preparedAt)) / (1000 * 3600);
 }
 
-/* ------------------- DONATE FOOD (CUSTOMER ONLY) --------------------- */
 router.post("/donate", auth, async (req, res) => {
   try {
-    // NGOs should NOT donate
     if (req.user.role === "ngo") {
       return res.status(403).json({ msg: "NGOs cannot donate food" });
     }
@@ -25,7 +21,6 @@ router.post("/donate", auth, async (req, res) => {
       return res.status(400).json({ msg: "Coordinates (lat, lng) required" });
     }
 
-    // 1) Create donation as Pending
     const donation = await Donation.create({
       donorId: req.user._id,
       foodType,
@@ -34,15 +29,13 @@ router.post("/donate", auth, async (req, res) => {
       status: "Pending",
       pickupConfirmed: false
     });
-
-    // 2) Find nearby NGOs
     const ngos = await NGO.aggregate([
       {
         $geoNear: {
-          near: { type: "Point", coordinates: [lng, lat] }, // [lng, lat]
+          near: { type: "Point", coordinates: [lng, lat] },
           distanceField: "distance",
           spherical: true,
-          maxDistance: 10000 // 10 km
+          maxDistance: 10000
         }
       }
     ]);
@@ -51,7 +44,6 @@ router.post("/donate", auth, async (req, res) => {
       return res.json({ msg: "No NGO available nearby" });
     }
 
-    // 3) Score NGOs
     const choose = ngos
       .filter((n) => (n.capacityKg || 0) >= quantity && n.availability !== false)
       .map((n) => {
@@ -61,9 +53,9 @@ router.post("/donate", auth, async (req, res) => {
           ageHrs > 2 ? 0.7 : 1;
 
         const finalScore =
-          (1 / ((n.distance || 1) + 1)) * 0.4 +        // distance
-          ((n.capacityKg || 0) / 100) * 0.2 +         // capacity
-          ((n.reliabilityScore || 1) * 0.4 * perishabilityScore); // reliability + freshness
+          (1 / ((n.distance || 1) + 1)) * 0.4 +       
+          ((n.capacityKg || 0) / 100) * 0.2 +         
+          ((n.reliabilityScore || 1) * 0.4 * perishabilityScore); 
 
         return { ...n, finalScore };
       })
@@ -73,24 +65,21 @@ router.post("/donate", auth, async (req, res) => {
       return res.json({ msg: "No suitable NGO found" });
     }
 
-    // 4) Assign chosen NGO
     donation.assignedNGO = choose._id;
     donation.status = "Assigned";
     await donation.save();
 
-    // 5) Decrease NGO capacity
     await NGO.findByIdAndUpdate(choose._id, {
       $inc: { capacityKg: -quantity }
     });
 
     res.json({ msg: "Donation Assigned", assignedTo: choose.name });
   } catch (err) {
-    console.error("🔥 donate error:", err);
+    console.error("donate error:", err);
     res.status(500).json({ msg: "Server error" });
   }
 });
 
-/* ---------------- NGO: UPDATE STORAGE CAPACITY ---------------- */
 router.post("/ngo/update-capacity", auth, async (req, res) => {
   try {
     if (req.user.role !== "ngo") {
@@ -103,7 +92,7 @@ router.post("/ngo/update-capacity", auth, async (req, res) => {
     }
 
     const updated = await NGO.findByIdAndUpdate(
-      req.user.ngoRef,                // use ngoRef from JWT
+      req.user.ngoRef,               
       { capacityKg: Number(newCapacity) },
       { new: true }
     );
@@ -118,8 +107,6 @@ router.post("/ngo/update-capacity", auth, async (req, res) => {
     res.status(500).json({ msg: "Failed to update capacity" });
   }
 });
-
-/* --------- NGO REQUESTS PICKUP CONFIRMATION ----------- */
 router.post("/ngo/request-pickup", auth, async (req, res) => {
   try {
     if (req.user.role !== "ngo") {
@@ -136,7 +123,6 @@ router.post("/ngo/request-pickup", auth, async (req, res) => {
       return res.status(404).json({ msg: "Donation not found" });
     }
 
-    // safety: ensure this donation is really assigned to this NGO
     if (donation.assignedNGO?.toString() !== req.user.ngoRef) {
       return res.status(403).json({ msg: "This donation is not assigned to you" });
     }
@@ -146,12 +132,11 @@ router.post("/ngo/request-pickup", auth, async (req, res) => {
 
     res.json({ msg: "Pickup confirmation requested from donor" });
   } catch (err) {
-    console.error("🔥 request-pickup error:", err);
+    console.error("request-pickup error:", err);
     res.status(500).json({ msg: "Request failed" });
   }
 });
 
-/* ---------------- DONOR CONFIRMS PICKUP --------------------- */
 router.post("/donor/confirm-pickup", auth, async (req, res) => {
   try {
     const { donationId, ngoId } = req.body;
@@ -163,7 +148,6 @@ router.post("/donor/confirm-pickup", auth, async (req, res) => {
     const donation = await Donation.findById(donationId);
     if (!donation) return res.status(404).json({ msg: "Donation not found" });
 
-    // ensure the same donor
     if (donation.donorId.toString() !== req.user._id) {
       return res.status(403).json({ msg: "Unauthorized" });
     }
@@ -172,17 +156,15 @@ router.post("/donor/confirm-pickup", auth, async (req, res) => {
     donation.pickupConfirmed = true;
     await donation.save();
 
-    // reliability boost for NGO
     await NGO.findByIdAndUpdate(ngoId, { $inc: { reliabilityScore: 0.1 } });
 
     res.json({ msg: "Pickup Confirmed! NGO reliability improved." });
   } catch (err) {
-    console.error("🔥 confirm-pickup error:", err);
+    console.error("confirm-pickup error:", err);
     res.status(500).json({ msg: "Error confirming pickup" });
   }
 });
 
-/* ---------------- DONOR: MY DONATIONS ---------------- */
 router.get("/my-donations", auth, async (req, res) => {
   try {
     const donations = await Donation.find({ donorId: req.user._id })
@@ -190,12 +172,11 @@ router.get("/my-donations", auth, async (req, res) => {
 
     res.json(donations);
   } catch (err) {
-    console.error("🔥 my-donations error:", err);
+    console.error("my-donations error:", err);
     res.status(500).json({ msg: "Error fetching donations" });
   }
 });
 
-/* --------- NGO: DONATIONS ASSIGNED TO ME ----------- */
 router.get("/assigned-to-me", auth, async (req, res) => {
   try {
     if (req.user.role !== "ngo") {
@@ -211,7 +192,7 @@ router.get("/assigned-to-me", auth, async (req, res) => {
 
     res.json(donations);
   } catch (err) {
-    console.error("🔥 assigned-to-me error:", err);
+    console.error("assigned-to-me error:", err);
     res.status(500).json({ msg: "Failed to fetch assigned donations" });
   }
 });

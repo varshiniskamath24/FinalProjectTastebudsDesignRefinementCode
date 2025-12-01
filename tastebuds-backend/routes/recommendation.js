@@ -33,7 +33,6 @@ function dietPenalty(userDiet, dishDiet) {
   return 0;
 }
 
-// ---------------- Reason Builder ----------------
 function buildReasonParts(tasteScore, popNorm, restScore, cuisineMatch, dietMatch) {
   const parts = [];
 
@@ -50,8 +49,6 @@ function buildReasonParts(tasteScore, popNorm, restScore, cuisineMatch, dietMatc
 
   return parts.length ? parts.join(" & ") : "Recommended by multiple people";
 }
-
-// ---------------- Restaurant Score ----------------
 function scoreRestaurant(r, userTaste, maxPop) {
   const rTaste = r.tasteTags || { spice: 3, oil: 3, sweet: 3 };
   const tasteScore = tasteSim(userTaste, rTaste);
@@ -73,7 +70,6 @@ function scoreRestaurant(r, userTaste, maxPop) {
   };
 }
 
-// ---------------- Dish Score ----------------
 function scoreDish(it, restaurant, userTaste, maxPop) {
   const itemTaste = {
     spice: num(it.spice || (it.taste && it.taste.spice), 3),
@@ -118,17 +114,13 @@ function scoreDish(it, restaurant, userTaste, maxPop) {
   };
 }
 
-// ---------------- MAIN ROUTE ----------------
 router.post("/", requireAuth, async (req, res) => {
   try {
     const { lat, lng, radiusKm = 10 } = req.body;
-
-    // Load user taste
     const u = await User.findById(req.user._id).lean();
     const userTaste =
       (u && u.taste) || { spice: 3, oil: 3, sweet: 3, diet: "veg", cuisines: [] };
 
-    // Load restaurants
     let restaurants = [];
 
     if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
@@ -150,7 +142,6 @@ router.post("/", requireAuth, async (req, res) => {
       restaurants = await Restaurant.find({}).lean();
     }
 
-    // Max popularity
     let maxPop = 0;
     restaurants.forEach((r) =>
       (r.menu || []).forEach((mi) => {
@@ -158,8 +149,6 @@ router.post("/", requireAuth, async (req, res) => {
         if (p > maxPop) maxPop = p;
       })
     );
-
-    // -------- RESTAURANTS RESULT WITH % FIXED -------- //
     const restScored = restaurants
       .map((r) => {
         const s = scoreRestaurant(r, userTaste, maxPop);
@@ -171,14 +160,12 @@ router.post("/", requireAuth, async (req, res) => {
           location: r.location,
           distanceMeters: r.distanceMeters || 0,
           score: s.finalScore,
-          match: Math.round(s.finalScore * 100),   // FIXED %
+          match: Math.round(s.finalScore * 100),  
           explanation: s.explanation
         };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 30);
-
-    // -------- DISHES RESULT WITH % FIXED -------- //
     const dishPool = [];
     restaurants.forEach((r) =>
       (r.menu || []).forEach((mi) =>
@@ -203,14 +190,13 @@ router.post("/", requireAuth, async (req, res) => {
         return {
           ...it,
           score: s.finalScore,
-          match: Math.round(s.finalScore * 100),  // FIXED %
+          match: Math.round(s.finalScore * 100), 
           reason: s.explanation
         };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 50);
 
-    // RETURN RESULT
     res.json({ restaurants: restScored, dishes: dishScored });
 
   } catch (err) {

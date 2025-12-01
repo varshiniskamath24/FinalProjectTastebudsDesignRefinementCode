@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 
-// ⭐ Status Dot Colors
 function statusColor(status) {
   switch (status) {
     case "Placed":
@@ -16,7 +15,6 @@ function statusColor(status) {
   }
 }
 
-// ⭐ SINGLE ORDER CARD
 function OrderCard({ order }) {
   const [fb, setFB] = useState({ spice: 3, oil: 3, sweet: 3 });
 
@@ -47,7 +45,6 @@ function OrderCard({ order }) {
       <p><b>Restaurant:</b> {order.restaurantName || "Unknown Restaurant"}</p>
       <p><b>Total:</b> ₹{order.total}</p>
 
-      {/* ⭐ Order Status with colored dot */}
       <p>
         <b>Status:</b>{" "}
         <span style={{ color: statusColor(order.status), fontWeight: "bold" }}>
@@ -55,13 +52,12 @@ function OrderCard({ order }) {
         </span>
       </p>
 
-      {/* ⭐ Taste Feedback Sliders */}
       {order.status === "Delivered" && (
         <>
           <h3 style={{ marginTop: 20 }}>Rate Taste:</h3>
 
           <div style={{ marginBottom: 10 }}>
-            🌶 <b>Spice:</b>
+            <b>Spice:</b>
             <input
               type="range"
               min="1"
@@ -74,7 +70,7 @@ function OrderCard({ order }) {
           </div>
 
           <div style={{ marginBottom: 10 }}>
-            🛢 <b>Oil:</b>
+            <b>Oil:</b>
             <input
               type="range"
               min="1"
@@ -87,7 +83,7 @@ function OrderCard({ order }) {
           </div>
 
           <div style={{ marginBottom: 10 }}>
-            🍬 <b>Sweet:</b>
+            <b>Sweet:</b>
             <input
               type="range"
               min="1"
@@ -119,7 +115,6 @@ function OrderCard({ order }) {
   );
 }
 
-// 🎉 MAIN PAGE
 export default function Orders() {
   const [orders, setOrders] = useState([]);
 
@@ -132,7 +127,7 @@ export default function Orders() {
     }
   };
 
-  // ⭐ Auto-refresh order status every 30s
+
   useEffect(() => {
     loadOrders();
     const timer = setInterval(loadOrders, 30000);

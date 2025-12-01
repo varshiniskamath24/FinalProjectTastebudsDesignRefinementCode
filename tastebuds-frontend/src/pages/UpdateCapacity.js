@@ -6,7 +6,6 @@ export default function UpdateCapacity() {
   const [capacity, setCapacity] = useState("");
   const [donations, setDonations] = useState([]);
 
-  // 🔐 Decode token (NOT conditional hook, this is fine)
   const token = localStorage.getItem("token");
   let user = null;
   try {
@@ -19,7 +18,6 @@ export default function UpdateCapacity() {
 
   const isNgo = user && user.role === "ngo";
 
-  // 🔁 Load donations assigned to this NGO
   const loadAssigned = async () => {
     if (!isNgo) return; // do nothing if not NGO
     try {
@@ -30,13 +28,11 @@ export default function UpdateCapacity() {
     }
   };
 
-  // ✅ Hook is ALWAYS called, no conditional return before this
   useEffect(() => {
     loadAssigned();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once
+  }, []); 
 
-  // 📦 Update capacity
+
   const handleUpdateCapacity = async () => {
     if (!isNgo) {
       alert("Only NGOs can update capacity");
@@ -53,7 +49,7 @@ export default function UpdateCapacity() {
     }
   };
 
-  // 🚚 NGO requests pickup confirmation
+
   const requestPickup = async (donationId) => {
     if (!isNgo) {
       alert("Only NGOs can request pickup confirmation");
@@ -79,7 +75,6 @@ export default function UpdateCapacity() {
         <>
           <h1>NGO Dashboard</h1>
 
-          {/* ⭐ CAPACITY SECTION */}
           <h2>Update Storage Capacity</h2>
           <input
             placeholder="Available Capacity (kg)"
@@ -89,7 +84,6 @@ export default function UpdateCapacity() {
           <br /><br />
           <button onClick={handleUpdateCapacity}>Update Capacity</button>
 
-          {/* 🚚 ASSIGNED DONATIONS LIST */}
           <h2 style={{ marginTop: 40 }}>Assigned Donations</h2>
 
           {donations.length === 0 && <p>No donations assigned to you yet.</p>}

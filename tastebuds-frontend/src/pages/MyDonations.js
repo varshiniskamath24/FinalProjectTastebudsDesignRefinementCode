@@ -44,7 +44,7 @@ export default function MyDonations() {
 
   return (
     <div style={{ padding: 40 }}>
-      <h2>📦 My Food Donations</h2>
+      <h2>My Food Donations</h2>
 
       {donations.length === 0 && <p>No donations yet.</p>}
 
@@ -93,7 +93,7 @@ export default function MyDonations() {
                 cursor: "pointer"
               }}
             >
-              ✔ Confirm Pickup
+              Confirm Pickup
             </button>
           )}
         </div>

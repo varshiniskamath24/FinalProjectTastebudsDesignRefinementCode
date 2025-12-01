@@ -1,4 +1,4 @@
-// src/pages/Recommend.js
+
 import React, { useState, useEffect } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,6 @@ export default function Recommend() {
 
   useEffect(() => {
     detectLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function detectLocation() {
@@ -76,8 +75,6 @@ export default function Recommend() {
       );
     }
   }
-
-  // ---------- robust fetchRecommendations with clear error messages ----------
   const fetchRecommendations = async () => {
     setMessage("");
     setLoadingResults(true);
@@ -88,8 +85,6 @@ export default function Recommend() {
       const parsedLat = lat ? Number(lat) : undefined;
       const parsedLng = lng ? Number(lng) : undefined;
 
-      // make the POST to the exact route your server exposes:
-      // with API.baseURL = "http://localhost:5000" this becomes POST http://localhost:5000/api
       const res = await API.post("/api", { lat: parsedLat, lng: parsedLng });
 
       console.info("Recommend success response:", res);
@@ -107,25 +102,20 @@ export default function Recommend() {
         }
       }
     } catch (err) {
-      // log full error for debugging
+     
       console.error("Recommend API error (full):", err);
 
-      // prefer structured server message:
-      // - if JSON: err.response.data.msg or err.response.data
-      // - if HTML: err.response.data (string)
-      // - fallback to err.message
       let userMsg = "Failed to load recommendations.";
 
       if (err && err.response) {
         const r = err.response;
-        // r.data may be an object or string
+       
         if (r.data) {
           if (typeof r.data === "string") {
-            // server returned HTML or plain text
+           
             userMsg = `Failed to load recommendations: ${r.data}`;
           } else if (typeof r.data === "object") {
-            // JSON body
-            // prefer common msg fields
+           
             userMsg =
               r.data.msg ||
               r.data.message ||
@@ -139,7 +129,7 @@ export default function Recommend() {
           userMsg = `Failed to load recommendations: HTTP ${r.status}`;
         }
       } else if (err && err.request) {
-        // request made, no response
+        
         userMsg = "No response from server. Is backend running on port 5000?";
       } else if (err && err.message) {
         userMsg = err.message;
@@ -150,9 +140,7 @@ export default function Recommend() {
       setLoadingResults(false);
     }
   };
-  // ---------------------------------------------------------------------------
 
-  // ---- styles (kept from your dark theme) ----
   const page = {
     minHeight: "70vh",
     display: "flex",

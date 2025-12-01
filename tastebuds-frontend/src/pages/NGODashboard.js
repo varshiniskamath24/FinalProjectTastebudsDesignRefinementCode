@@ -31,7 +31,6 @@ export default function NGODashboard() {
 
   useEffect(() => {
     loadAssigned();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNgo]);
 
   const handleUpdateCapacity = async () => {

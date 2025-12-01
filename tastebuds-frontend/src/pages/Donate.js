@@ -10,12 +10,12 @@ export default function Donate() {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [message, setMessage] = useState("");
   const [explanation, setExplanation] = useState("");
-  const [permState, setPermState] = useState(null); // "granted" | "prompt" | "denied" | null
+  const [permState, setPermState] = useState(null); 
 
   useEffect(() => {
-    // on mount, attempt to get permission state & location
+
     checkAndRequestLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   function checkAndRequestLocation() {
@@ -29,7 +29,6 @@ export default function Donate() {
       return;
     }
 
-    // If permissions API exists, query first
     if (navigator.permissions && navigator.permissions.query) {
       navigator.permissions
         .query({ name: "geolocation" })
@@ -41,22 +40,17 @@ export default function Donate() {
             );
             setLoadingLocation(false);
           } else {
-            // if prompt or granted, request position (this will either prompt or succeed)
             requestPosition();
           }
-
-          // listen for changes (user may update permission from UI)
           result.onchange = () => {
             setPermState(result.state);
             if (result.state === "granted") requestPosition();
           };
         })
         .catch(() => {
-          // permissions API not available — fallback to direct request
           requestPosition();
         });
     } else {
-      // No permissions API — go straight to request
       requestPosition();
     }
   }
@@ -76,7 +70,6 @@ export default function Donate() {
         setLoadingLocation(false);
       },
       (err) => {
-        // Map codes to messages
         if (err.code === err.PERMISSION_DENIED) {
           setMessage(
             "Permission denied. Please allow location access (click the lock icon → Site settings → Allow Location) and retry."
@@ -168,7 +161,6 @@ export default function Donate() {
             <button
               type="button"
               onClick={() => {
-                // helpful hint: open site settings instructions
                 window.alert(
                   "If you previously blocked location, open the lock icon in the address bar → Site settings → Allow Location, then reload this page."
                 );

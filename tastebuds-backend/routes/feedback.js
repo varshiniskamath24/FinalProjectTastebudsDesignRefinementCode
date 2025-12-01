@@ -70,7 +70,7 @@ router.post("/:orderId", requireAuth, async (req, res) => {
     return res.json({ msg: "Feedback saved & restaurant updated" });
 
   } catch (err) {
-    console.error("Feedback Error ❌", err);
+    console.error("Feedback Error", err);
     res.status(500).json({ msg: "Server error submitting feedback" });
   }
 });

@@ -1,11 +1,10 @@
-// src/pages/RestaurantDetails.js
+
 import React, { useEffect, useState } from "react";
 import API from "../api/api";
 import { useParams, useNavigate } from "react-router-dom";
 
 const FALLBACK_IMG = "https://placehold.co/140x100?text=No+Image";
 
-// -------- Helper functions -------- //
 const itemId = (it) =>
   it._resolvedId || it._id || it.id || it.item || it.name || "item-" + Math.random();
 
@@ -28,14 +27,14 @@ const getTaste = (it) => ({
   sweet: Number(it?.taste?.sweet ?? it.sweet ?? 3),
 });
 
-// ---------- ⭐ Item-level Taste Explanation ---------- //
+
 function tasteExplanation(userTaste, dish) {
   const u = userTaste || { spice: 3, sweet: 3, oil: 3 };
   const d = getTaste(dish);
 
   const parts = [];
 
-  // SPICE
+
   if (d.spice > u.spice) {
     parts.push("🌶 This dish is spicier than your preference.");
   } else if (d.spice < u.spice) {
@@ -44,28 +43,28 @@ function tasteExplanation(userTaste, dish) {
     parts.push("🌶 Spice level matches your taste.");
   }
 
-  // SWEET
+
   if (d.sweet > u.sweet) {
-    parts.push("🍬 This dish is sweeter than your taste.");
+    parts.push("This dish is sweeter than your taste.");
   } else if (d.sweet < u.sweet) {
-    parts.push("🍬 This dish is not sweet enough for your taste.");
+    parts.push("This dish is not sweet enough for your taste.");
   } else {
-    parts.push("🍬 Sweetness matches your taste.");
+    parts.push("Sweetness matches your taste.");
   }
 
-  // OIL
+ 
   if (d.oil > u.oil) {
-    parts.push("🛢 This dish is oilier than you prefer.");
+    parts.push("This dish is oilier than you prefer.");
   } else if (d.oil < u.oil) {
-    parts.push("🛢 This dish is less oily than your preference.");
+    parts.push("This dish is less oily than your preference.");
   } else {
-    parts.push("🛢 Oil level matches your taste.");
+    parts.push("Oil level matches your taste.");
   }
 
   return parts.join(" ");
 }
 
-// ---------- ⭐ Restaurant-level headline (Based on MENU AVERAGE) ---------- //
+
 function restaurantHeadline(userTaste, menu) {
   if (!Array.isArray(menu) || menu.length === 0) return "";
 
@@ -91,25 +90,25 @@ function restaurantHeadline(userTaste, menu) {
 
   const parts = [];
 
-  // SPICE
-  if (r.spice > u.spice + 1) parts.push("🌶 Spicier than you prefer.");
-  else if (r.spice < u.spice - 1) parts.push("🌶 Milder than your preference.");
-  else parts.push("🌶 Spice level similar to your taste.");
 
-  // OIL
-  if (r.oil > u.oil + 1) parts.push("🛢 Oilier than your taste.");
-  else if (r.oil < u.oil - 1) parts.push("💧 Lower oil than you prefer.");
-  else parts.push("💧 Oil level similar to your taste.");
+  if (r.spice > u.spice + 1) parts.push("Spicier than you prefer.");
+  else if (r.spice < u.spice - 1) parts.push("Milder than your preference.");
+  else parts.push("Spice level similar to your taste.");
+
+
+  if (r.oil > u.oil + 1) parts.push("Oilier than your taste.");
+  else if (r.oil < u.oil - 1) parts.push("Lower oil than you prefer.");
+  else parts.push("Oil level similar to your taste.");
 
   // SWEET
-  if (r.sweet > u.sweet + 1) parts.push("🍬 Sweeter than your usual preference.");
-  else if (r.sweet < u.sweet - 1) parts.push("🍬 Less sweet than you prefer.");
-  else parts.push("🍬 Sweetness similar to your taste.");
+  if (r.sweet > u.sweet + 1) parts.push("Sweeter than your usual preference.");
+  else if (r.sweet < u.sweet - 1) parts.push("Less sweet than you prefer.");
+  else parts.push("Sweetness similar to your taste.");
 
   return parts.join(" ");
 }
 
-// -------- UI Badges -------- //
+
 function TasteBadge({ emoji, count }) {
   if (!count || Number(count) <= 0) return null;
   return (
@@ -139,7 +138,6 @@ export default function RestaurantDetails() {
   const [data, setData] = useState(null);
   const [cart, setCart] = useState([]);
 
-  // ---- Ensure recommended dishes inherit correct taste ----
   const enrichRecommended = (dataObj) => {
     const menu = dataObj.menu || [];
     return (dataObj.recommendedDishes || []).map((rec, i) => {
@@ -207,12 +205,10 @@ export default function RestaurantDetails() {
     <div style={{ padding: 30 }}>
       <h2>{data.name}</h2>
 
-      {/* ⭐ Correct top headline */}
       <p style={{ marginTop: 6, color: "#333" }}>
         {restaurantHeadline(userTaste, menu)}
       </p>
 
-      {/* Recommended Section */}
       {data.recommendedDishes?.length > 0 && (
         <>
           <h3 style={{ marginTop: 20 }}>🍽 Recommended Dishes for You</h3>
